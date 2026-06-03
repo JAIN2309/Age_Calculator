@@ -44,32 +44,6 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  Future<void> _pickDate(bool isBirth) async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: isBirth
-          ? (_birthDate ?? DateTime(now.year - 25, now.month, now.day))
-          : _toDate,
-      firstDate: DateTime(1900),
-      lastDate: isBirth ? now : DateTime(now.year + 1),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: ColorScheme.fromSeed(seedColor: AppTheme.primary),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked == null) return;
-    setState(() {
-      if (isBirth) {
-        _birthDate = picked;
-      } else {
-        _toDate = picked;
-      }
-    });
-  }
-
   bool get _canCalculate =>
       _birthDate != null && !_toDate.isBefore(_birthDate!);
 
@@ -237,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen>
             selectedDate: _birthDate,
             firstDate: DateTime(1900),
             lastDate: DateTime.now(),
-            onTap: () => _pickDate(true),
+            onDateChanged: (date) => setState(() => _birthDate = date),
             icon: Icons.cake_rounded,
             accentColor: AppTheme.primary,
           ),
@@ -267,7 +241,9 @@ class _HomeScreenState extends State<HomeScreen>
             selectedDate: _toDate,
             firstDate: DateTime(1900),
             lastDate: DateTime(DateTime.now().year + 1),
-            onTap: () => _pickDate(false),
+            onDateChanged: (date) => setState(() {
+              if (date != null) _toDate = date;
+            }),
             icon: Icons.today_rounded,
             accentColor: const Color(0xFF00897B),
           ),
